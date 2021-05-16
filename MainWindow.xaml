@@ -1,0 +1,145 @@
+﻿<Window x:Class="MalikaDiploma.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" x:Name="Window"
+        DataContext="{Binding ElementName=Window, Path=Diploma}"
+        Title="{Binding Title, Mode=OneWay}" Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        SizeChanged="MainWindow_OnSizeChanged"
+        KeyDown="Plane_OnKeyDown"
+        WindowState="Normal">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition />
+      <ColumnDefinition Width="180" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition />
+      <RowDefinition Height="200" />
+    </Grid.RowDefinitions>
+
+    <Canvas x:Name="Plane" Background="White"
+            MouseMove="Canvas_OnMouseMove"
+            MouseLeftButtonDown="Canvas_OnMouseLeftButtonDown"
+            Grid.Column="0" Grid.Row="0" ClipToBounds="True"
+            Loaded="Canvas_OnLoaded"/>
+
+    <Border Background="LightGray" BorderThickness="1,0,0,0" BorderBrush="DarkGray"
+            Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition />
+          <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition />
+          <RowDefinition Height="30" />
+          <RowDefinition Height="30" />
+          <RowDefinition Height="90" />
+          <RowDefinition Height="30" />
+          <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        <DataGrid Grid.ColumnSpan="2"
+                  ItemsSource="{Binding Points}" AutoGenerateColumns="False"
+                  SelectedIndex="{Binding SelectedPointIndex, Mode=TwoWay}" SelectionMode="Single"
+                  CanUserResizeRows="False" CanUserResizeColumns="False"
+                  CanUserSortColumns="False" CanUserReorderColumns="False"
+                  HorizontalGridLinesBrush="DarkGray" VerticalGridLinesBrush="DarkGray"
+                  BorderThickness="0" RowHeight="20" RowHeaderWidth="0">
+          <DataGrid.Resources>
+            <Style TargetType="{x:Type TextBlock}" x:Key="RightCell">
+              <Setter Property="HorizontalAlignment" Value="Stretch" />
+              <Setter Property="TextAlignment" Value="Right" />
+            </Style>
+          </DataGrid.Resources>
+          <DataGrid.CellStyle>
+            <Style TargetType="DataGridCell">
+              <Setter Property="HorizontalContentAlignment" Value="Right" />
+            </Style>
+          </DataGrid.CellStyle>
+          <DataGrid.ColumnHeaderStyle>
+            <Style TargetType="DataGridColumnHeader">
+              <Setter Property="HorizontalAlignment" Value="Stretch" />
+              <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+          </DataGrid.ColumnHeaderStyle>
+          <DataGrid.Columns>
+            <DataGridTextColumn Width="1*"
+                                Binding="{Binding Name, ValidatesOnExceptions=True, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <DataGridTextColumn Header="X" Width="2*"
+                                Binding="{Binding X, ValidatesOnExceptions=True, Mode=TwoWay}"
+                                ElementStyle="{StaticResource RightCell}" />
+            <DataGridTextColumn Header="Y" Width="2*"
+                                Binding="{Binding Y, ValidatesOnExceptions=True, Mode=TwoWay}"
+                                ElementStyle="{StaticResource RightCell}" />
+          </DataGrid.Columns>
+        </DataGrid>
+
+        <Button Grid.Row="1" Grid.Column="0" Command="{Binding MoveUpCommand}" BorderThickness="0">Вверх</Button>
+        <Button Grid.Row="1" Grid.Column="1" Command="{Binding MoveDownCommand}" BorderThickness="0">Вниз</Button>
+
+        <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                Command="{Binding ClearCommand}"
+                BorderThickness="0">Удалить всё</Button>
+
+        <Grid Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0" Margin="10,0,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="80" />
+          </Grid.ColumnDefinitions>
+
+          <Label Margin="0" Padding="0,6,0,6">Гладкость:</Label>
+          <ToggleButton Grid.Column="1" Grid.Row="0" Margin="0,4,0,0"
+                        Command="{Binding EnableC1Arc, Mode=OneWay}"
+                        IsChecked="{Binding IsC1ArcEnabled, Mode=OneWay}">
+            C1: Дуга
+          </ToggleButton>
+          <ToggleButton Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,4,0,0"
+                        Command="{Binding EnableC2Cubic, Mode=OneWay}"
+                        IsChecked="{Binding IsC2CubicEnabled, Mode=OneWay}">
+            C2: Кубическая парабола
+          </ToggleButton>
+          <ToggleButton Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,4,0,0"
+                        Command="{Binding EnableC2Clothoid, Mode=OneWay}"
+                        IsChecked="{Binding IsC2ClothoidEnabled, Mode=OneWay}">
+            C2: Клотоида
+          </ToggleButton>
+        </Grid>
+
+        <CheckBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,0,10,0"
+                  IsChecked="{Binding ShowGuides, Mode=TwoWay}"
+                  VerticalAlignment="Center">
+          Доп. построения
+        </CheckBox>
+
+        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,0,10,0">
+          <Label Padding="0,6,0,6">Радиус окружностей:</Label>
+          <Slider VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                  Minimum="0" Maximum="1" Value="{Binding SmoothingFactor, Mode=TwoWay}"
+                  SmallChange="0.01" LargeChange="0.1" Padding="0" />
+        </StackPanel>
+      </Grid>
+
+    </Border>
+
+    <Border BorderThickness="0,1,0,0"
+            BorderBrush="DarkGray"
+            Grid.Row="1" Grid.Column="0">
+      <Grid>
+        <Canvas x:Name="CurvatureGraph"
+                Background="#F8F8F8"
+                ClipToBounds="True"
+                MouseLeave="CurvatureGraphMouseLeave"
+                MouseMove="CurvatureGraphMouseMove"/>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
